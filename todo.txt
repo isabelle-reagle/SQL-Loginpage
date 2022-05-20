@@ -1,0 +1,6 @@
+1: SQL Integration
+2: SSL Verification
+3: Input verification
+4: Account registration (merge with SQL db)
+5: Balance management
+6: Email verifications

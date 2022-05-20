@@ -48,36 +48,20 @@ def send_error(message, *argv):
     pass
 
 
+
+
 """
-A hash function of password
+Short-term representation of user as a class
 """
-
-
-
-
 class User:
     users = []
 
-    def __init__(self, username, password, id):
-        self.id = id
-        self.username = username
-        self.password_hash = hash(password)
 
-        """
-        Logs User to registry and database
-        """
-        if (not self.user_in_database()):
-            self.write_user()
-
-        """
-        Removes duplicates from the user registry
-        These duplicates aren't a big deal, since it is not in the formal database
-        """
-        while User.find_user_in_registry(self.id) != None:
-            User.users.remove(User.find_user_in_registry(self.id))
-        User.users.append(self)
-    def __init__(self, username, password):
-        self.id = uuid.uuid1()
+    def __init__(self, username, password, id=None):
+        if (id):
+            self.id = id
+        else:
+            self.id = uuid.uuid1()
         self.username = username
         self.password_hash = hash(password)
 
@@ -105,7 +89,7 @@ class User:
         connection = get_sql_connection(PATH)
         cursor = connection.cursor()
 
-        cursor.execute("SELECT id FROM users WHERE id = {0}".format(self.id))
+        cursor.execute("SELECT id FROM users WHERE id = \"{0}\"".format(self.id))
 
         results = cursor.fetchall()
 
@@ -120,7 +104,7 @@ class User:
     """
     def write_user(self):
         # Ensure that no SQL injection is attempted
-        if "--" in self.username or "--" in self.password_hash:
+        if "--" in self.username or "--" in str(self.password_hash):
             print("SQL INJECTION ATTEMPT")
             return 2
         # Do not add User to the database if they are already present
@@ -133,7 +117,7 @@ class User:
         cursor = connection.cursor()
 
         # insert the new user into the database
-        cursor.execute("INSERT INTO users VALUES({0}, \"{1}\", \"{2}\");".format(
+        cursor.execute("INSERT INTO users VALUES(\"{0}\", \"{1}\", \"{2}\");".format(
             self.id, self.username, self.password_hash))
 
 
@@ -227,7 +211,7 @@ class User:
         connection = get_sql_connection(PATH)
         cursor = connection.cursor()
 
-        cursor.execute("SELECT id, password_hash FROM users WHERE name = {0}".format(s))
+        cursor.execute("SELECT id, password_hash FROM users WHERE username = \"{0}\"".format(s))
         data = cursor.fetchall()
         
         if len(data) > 1:
@@ -237,8 +221,19 @@ class User:
         if len(data) == 0:
             return None
         
-        if User.find_user_in_registry(data[0][0]) != None:
-            return User.find_user_in_registry(data[0][0])
-        return User(s, data[0][1], data[0][0])
         connection.commit()
         connection.close()
+        tmp = User.find_user_in_registry(data[0][0])
+        if tmp != None:
+            return tmp
+        return User(s, data[0][1], data[0][0])
+        
+    @staticmethod
+    def execute_sql_select(command):
+        connection = get_sql_connection(PATH)
+        cursor = connection.cursor()
+
+        cursor.execute(command)
+        data = cursor.fetchall()
+        
+        return data
