@@ -134,10 +134,14 @@ class User:
         cursor = connection.cursor()
 
         cursor.execute("DELETE FROM users WHERE id = {0}".format(self.id))
-        User.users.remove(self)
+        if self in User.users:
+            User.users.remove(self)
         connection.commit()
         connection.close()
 
+    def remove_user_from_cache(self):
+        if self in User.users:
+            User.users.remove(self)
     """
     Updates a user in the SQL database so they are up to date with their information in the code
     """
