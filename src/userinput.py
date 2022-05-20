@@ -51,7 +51,7 @@ def verify_loginpage_input(s):
         \texit / stop: stops the program
         \tadminmenu {requires admin verification}: debug statistics""", None)
     elif s[0] == "exit" or s[0] == "stop":
-        return "EXIT", None
+        return "EXIT", None 
     elif s[0] == "register" and len(s) > 1:
         tmp = register_password(s[1])
         if tmp:
