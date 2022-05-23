@@ -289,8 +289,8 @@ class Account:
         cursor.close()
 
     def update_account(self):
-        self.remove_account_from_regisry()
         self.remove_account_from_database()
+        self.write_account()
 
     def write_account(self):
         # Do not add User to the database if they are already present
