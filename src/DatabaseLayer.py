@@ -1,6 +1,4 @@
-from os import curdir
 import sqlite3
-from this import d
 import uuid
 import hashlib
 
