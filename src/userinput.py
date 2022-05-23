@@ -1,5 +1,6 @@
 from DatabaseLayer import *
 from getpass import getpass
+import hashlib
 
 def main():
     print("Welcome to the testing phase of the SQL integration test.")
@@ -10,7 +11,7 @@ def main():
     
     # login / register loop
     while True:
-        message = raw_input("/$ ")  
+        message = input("/$ ")  
         response, account = verify_loginpage_input(message)
         if (response == "EXIT"):
             return
@@ -20,7 +21,7 @@ def main():
     
     # account loop
     while True:
-        message = raw_input("/{0}$ ")
+        message = input("/{0}/$ ".format(account.username))
 
         response = verify_accountpage_input(message)
 
@@ -79,7 +80,7 @@ def verify_loginpage_input(s):
     elif s[0] == "admin":
         return User.execute_sql_select("SELECT * FROM users"), None
     else:
-        return "Invalid command. Type help fogr a list of commands.", None
+        return "Invalid command. Type help fog a list of commands.", None
 
 
 """
@@ -88,7 +89,7 @@ Prompts a user to register their username
 def register_username(username = None):
     while True:
         if not username:
-            username = raw_input("Username: ")
+            username = input("Username: ")
         if username == "back":
             return None
         validity = User.is_valid_username(username)
@@ -120,7 +121,7 @@ def register_username(username = None):
 def register(s = None):
     while True:
         if (not s):
-            username = raw_input("Username: ")
+            username = input("Username: ")
         if username == "back":
             return None
         validity = User.is_valid_username(username)
@@ -169,7 +170,7 @@ def register_password(s):
             continue
         break
     while True:
-        password2 = getpass("  Password: ")
+        password2 = getpass("Confirm Password: ")
         if password != password2:
             print("Passwords do not match. Try again\nType 'back' to return to home page")       
             continue
@@ -183,7 +184,7 @@ Prompts a user to enter their login username
 """
 def login():
     while True:
-        username = raw_input("Username: ")
+        username = input("Username: ")
         if username == "back":
             return None
         tmp = User.find_user_by_name(username)
@@ -198,10 +199,10 @@ Prompts a user to enter their login password
 """
 def login_password(user):
     while True:
-        password = raw_input("Password: ")
+        password = getpass("Password: ")
         if password == "back":
             return None
-        if user.password_hash == hash(password):
+        if user.password_hash == hashlib.sha256(password.encode('utf-8')).hexdigest():
             return user
         print("Incorrect password\nType back to return to the home page")
         continue

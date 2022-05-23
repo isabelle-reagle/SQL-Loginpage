@@ -1,5 +1,6 @@
 import sqlite3
 import uuid
+import hashlib
 
 def get_path():
     return "rentalDB.db"
@@ -57,13 +58,18 @@ class User:
     users = []
 
 
-    def __init__(self, username, password, id=None):
+    def __init__(self, username, password, id=None, password_is_hashed=False):
         if (id):
             self.id = id
         else:
             self.id = uuid.uuid1()
         self.username = username
-        self.password_hash = hash(password)
+        # self.password_hash = hash(password)
+
+        if (password_is_hashed):
+            self.password_hash = password
+        else:
+            self.   password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         """
         Logs User to registry and database
@@ -162,7 +168,7 @@ class User:
     Ovverride of the string method of the object
     """
     def __str__(self):
-        return "ID: "+str(self.id)+"\nUsername: "+self.username+"\nPassword: " + ("*" * len(self.password_hash))
+        return "ID: "+str(self.id)+"\nUsername: "+self.username+"\nPassword Hash: " + (self.password_hash[0:3] + "*" * (len(self.password_hash) -3))
 
     """
     Finds user in the registry by their id
@@ -226,7 +232,7 @@ class User:
         tmp = User.find_user_in_registry(data[0][0])
         if tmp != None:
             return tmp
-        return User(s, data[0][1], data[0][0])
+        return User(s, data[0][1], data[0][0], True)
         
     @staticmethod
     def execute_sql_select(command):
