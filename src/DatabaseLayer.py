@@ -238,8 +238,27 @@ class User:
         
         return data
 
+    def get_account_by_user(self):
+        for account in Account.accounts:
+            if account.user == self:
+                return account
+        return None
+
 #endregion
 
 #region balancemanagement
+
+class Account:
+
+    accounts = []
+    def __init__(self, user, balance=10):
+        self.user = user
+        self.balance = balance
+        if not self in Account.users:
+            Account.accounts.append(self)
+    
+
+    
+
 
 #endregion
