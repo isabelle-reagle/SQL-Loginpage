@@ -1,4 +1,6 @@
+from os import curdir
 import sqlite3
+from this import d
 import uuid
 import hashlib
 
@@ -132,12 +134,15 @@ class User:
     Includes removal from the registry and database
     """
     def remove_user(self):
+        self.remove_user_from_database()
+        self.remove_user_from_registry()
+
+    def remove_user_from_database(self):
         connection = get_sql_connection(PATH)
         cursor = connection.cursor()
 
         cursor.execute("DELETE FROM users WHERE id = {0}".format(self.id))
-        if self in User.users:
-            User.users.remove(self)
+
         connection.commit()
         connection.close()
 
@@ -154,7 +159,7 @@ class User:
     Updates a user in the SQL database so they are up to date with their information in the code
     """
     def update_user(self):
-        self.remove_user()
+        self.remove_user_from_database()
         self.write_user()
 
 
@@ -254,11 +259,63 @@ class Account:
     def __init__(self, user, balance=10):
         self.user = user
         self.balance = balance
+        self.id = user.id
         if not self in Account.users:
             Account.accounts.append(self)
     
+    def __str__(self):
+        return "Username: {0}\nBalance: ${1}\nID:{2}".format(self.user.username, self.balance, self.id)
 
-    
+    def account_in_database(self):
+        connection = get_sql_connection(PATH)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT id FROM bank_accounts WHERE id={0};".format(self.id))
+        data = cursor.fetchall()
+
+        for row in data:
+            if row[0] == self.id:
+                connection.close()
+                return True
+
+        connection.close()
+        return False
+
+    def remove_account_from_registry(self):
+        if self in Account.accounts:
+            Account.accounts.remove(self)
+
+    def remove_account_from_database(self):
+        connection = get_sql_connection(PATH)
+        cursor = connection.cursor()
+
+        cursor.execute("DELETE FROM bank_accounts WHERE id = {0}".format(self.id))
+
+        connection.commit()
+        cursor.close()
+
+    def update_account(self):
+        self.remove_account_from_regisry()
+        self.remove_account_from_database()
+        
+    def write_account(self):
+        # Do not add User to the database if they are already present
+        if self.account_in_database():
+            print("Account already in database.")
+            return 1
+
+        # establish connection to the SQL database
+        connection = get_sql_connection(PATH)
+        cursor = connection.cursor()
+
+        # insert the new user into the database
+        cursor.execute("INSERT INTO bank_accounts VALUES(\"{0}\", \"{1}\");".format(
+            self.id, self.balance))
 
 
+        # commit changes
+        connection.commit()
+        connection.close()
+
+        return 0
 #endregion
