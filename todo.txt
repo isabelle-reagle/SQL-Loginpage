@@ -1,10 +1,12 @@
 TODO
     1: Email verification
     2: Balance management
-
+    3: User logged-in commands
+    
 IN PROGRESS 
     1: Integrate user balances in SQL db
 
 COMPLETE
     1: Account registration
     2: Account Database Integration
+    3: Password Hashing
