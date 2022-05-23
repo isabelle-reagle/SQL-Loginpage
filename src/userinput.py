@@ -11,19 +11,27 @@ def main():
     
     # login / register loop
     while True:
-        message = input("/$ ")  
-        response, account = verify_loginpage_input(message)
-        if (response == "EXIT"):
-            return
-        print(response)
-        if response == "Logged in successfully":
-            break
-    
-    # account loop
-    while True:
-        message = input("/{0}/$ ".format(account.username))
+        while True:
+            message = input("/$ ")  
+            response, account = verify_loginpage_input(message)
+            if (response == "EXIT"):
+                return
+            print(response)
+            if response == "Logged in successfully":
+                break
+        
+        # account loop
+        while True:
+            message = input("/{0}/$ ".format(account.username))
 
-        response = verify_accountpage_input(message)
+            response = verify_accountpage_input(message)
+
+            if response == "LOGOUT":
+                break
+                
+            if response == "EXIT":
+                return
+
 
 
 """
@@ -31,7 +39,23 @@ Checks the user's input on the account page and makes a decision according to it
 """
 def verify_accountpage_input(s):
     s = s.split(" ")
-    return
+    if s[0] == "help":
+        if s[1] == "jobs":
+            return("""Job Commands:
+            \topenings: view open jobs
+            \tapply [job name]: apply to a job
+            \tquit: quit your current job
+            \tinfo: info about jobs
+            \tcurrent: info about your current job""")
+        return("""Commands:
+        \tbalance: view your balance
+        \thistory [amount]: view your most recent [amount] purchases. Default is 10
+        \tpay [amount] [username]: pay someone else an amount
+        \tbuy [item] [quantity]: buy an item, default quantity is 1
+        \twork: work for money
+        \tjobs [command]: commands that have to do with jobs
+        \tlogout: logs you out from your account
+        \texit: exits the program""")
 
 
 """
@@ -42,7 +66,6 @@ Commands:
     help: get command list
 """
 def verify_loginpage_input(s):
-    print(s)
     s = str(s).split(" ")
     if s[0] == "help":
         return ("""Commands:

@@ -7,17 +7,22 @@ def get_path():
     
 PATH = "rentalDB.db"
 
+"""
+sends a vital error to me
+"""
+def send_error(message, *argv):
+    pass
 
 def get_sql_connection(path):
     return sqlite3.connect(path)
 
 
+#region usermanagment
+
 """
 Finds a user from the SQL database by their ID
 returntype: User
 """
-
-
 def find_user_in_database(id, path):
     connection = get_sql_connection(path)
     cursor = connection.cursor()
@@ -41,18 +46,7 @@ def find_user_in_database(id, path):
 
 
 """
-sends a vital error to me
-"""
-
-
-def send_error(message, *argv):
-    pass
-
-
-
-
-"""
-Short-term representation of user as a class
+Short-term representation of user as an object
 """
 class User:
     users = []
@@ -69,7 +63,7 @@ class User:
         if (password_is_hashed):
             self.password_hash = password
         else:
-            self.   password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+            self.password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
         """
         Logs User to registry and database
@@ -243,3 +237,9 @@ class User:
         data = cursor.fetchall()
         
         return data
+
+#endregion
+
+#region balancemanagement
+
+#endregion
