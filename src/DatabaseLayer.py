@@ -53,13 +53,14 @@ Short-term representation of user as an object
 class User:
     users = []
 
-
     def __init__(self, username, password, id=None, password_is_hashed=False):
         if (id):
             self.id = id
         else:
             self.id = uuid.uuid1()
         self.username = username
+
+        self.account = Account(self)
         # self.password_hash = hash(password)
 
         if (password_is_hashed):
@@ -81,6 +82,7 @@ class User:
             User.users.remove(User.find_user_in_registry(self.id))
         User.users.append(self)
 
+
     """
     Checks if a User is in the database or not
     Checks by ID, so duplicate usernames and passwords are allowed
@@ -96,6 +98,7 @@ class User:
         results = cursor.fetchall()
 
         return len(results) != 0
+
 
     """
     Writes a User to the SQL database
@@ -129,6 +132,7 @@ class User:
 
         return 0
 
+
     """
     Removes a User from the platform entirely
     Includes removal from the registry and database
@@ -137,6 +141,10 @@ class User:
         self.remove_user_from_database()
         self.remove_user_from_registry()
 
+
+    """
+    Removes a user from the database
+    """
     def remove_user_from_database(self):
         connection = get_sql_connection(PATH)
         cursor = connection.cursor()
@@ -211,6 +219,11 @@ class User:
             return "INVALID_CHARACTER"
         return "VALID"
 
+
+    """
+    Returns a user object based off of the name given
+    If there is no user object created currently, it creates a new one
+    """
     @staticmethod
     def find_user_by_name(s):
         connection = get_sql_connection(PATH)
@@ -232,30 +245,13 @@ class User:
         if tmp != None:
             return tmp
         return User(s, data[0][1], data[0][0], True)
-        
-    @staticmethod
-    def execute_sql_select(command):
-        connection = get_sql_connection(PATH)
-        cursor = connection.cursor()
-
-        cursor.execute(command)
-        data = cursor.fetchall()
-        
-        return data
-
-    def get_account_by_user(self):
-        for account in Account.accounts:
-            if account.user == self:
-                return account
-        return None
-
 #endregion
 
-#region balancemanagement
+#region accountmanagement
 
 class Account:
-
     accounts = []
+
     def __init__(self, user, balance=10):
         self.user = user
         self.balance = balance
@@ -297,7 +293,7 @@ class Account:
     def update_account(self):
         self.remove_account_from_regisry()
         self.remove_account_from_database()
-        
+
     def write_account(self):
         # Do not add User to the database if they are already present
         if self.account_in_database():
