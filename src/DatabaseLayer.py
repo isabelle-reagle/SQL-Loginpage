@@ -58,17 +58,18 @@ class User:
             self.id = uuid.uuid1()
         self.username = username
 
-        self.account = Account(self)
-        # self.password_hash = hash(password)
-
         if (password_is_hashed):
             self.password_hash = password
         else:
             self.password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
+
+        self.account = Account(self)
+        
         """
         Logs User to registry and database
         """
+        
         if (not self.user_in_database()):
             self.write_user()
 
@@ -80,6 +81,7 @@ class User:
             User.users.remove(User.find_user_in_registry(self.id))
         User.users.append(self)
 
+        
 
     """
     Checks if a User is in the database or not
@@ -254,8 +256,11 @@ class Account:
         self.user = user
         self.balance = balance
         self.id = user.id
-        if not self in Account.users:
+        if not self in Account.accounts:
             Account.accounts.append(self)
+        
+        if not self.account_in_database():
+            self.write_account()
     
     def __str__(self):
         return "Username: {0}\nBalance: ${1}\nID:{2}".format(self.user.username, self.balance, self.id)
@@ -264,7 +269,7 @@ class Account:
         connection = get_sql_connection(PATH)
         cursor = connection.cursor()
 
-        cursor.execute("SELECT id FROM bank_accounts WHERE id={0};".format(self.id))
+        cursor.execute("SELECT id FROM bank_accounts WHERE id = \"{0}\";".format(self.id))
         data = cursor.fetchall()
 
         for row in data:
@@ -312,4 +317,5 @@ class Account:
         connection.close()
 
         return 0
+
 #endregion
